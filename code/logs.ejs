@@ -11,13 +11,29 @@
 </head>
 
 <body onload="fillAll()">
-  <form action="/relLog" method="POST">
-   <label for="crimes">Choose the crimes</label>
-   <select name="crimes" id="crimeDrop" multiple>  </select>
-   <select name="universities" id="uniDrop" multiple>  </select>
-   <br><br>
-   <button type="submit" onclick="reload"  class="btn btn-primary">Submit</button>
-  </form>
+  <body onload="fillAll()">
+  <div class="container mt-4">
+    <div class="card">
+        <h2></h2>
+        <form action="/trends" method="GET">
+          <button type="submit"  class="btn btn-primary">Trends</button>
+        </form>
+    </div>
+  </div>
+
+
+  <div class="container mt-4">
+    <div class="card">
+      <form action="/relLog" method="POST">
+        <label for="crimes">Choose the crimes</label>
+        <select name="crimes" id="crimeDrop" multiple>  </select>
+        <select name="universities" id="uniDrop" multiple>  </select>
+        <br><br>
+        <button type="submit"  class="btn btn-primary">Submit</button>
+      </form>
+    </div>
+  </div>
+
   <div class="container mt-4">
     <div class="card">
         <h2>Crime Logs Shown Below</h2>
@@ -69,38 +85,12 @@
     }
     function fillCrimeTypes(){
       $.ajax({
-        url: '/api/logs',
-        method: 'GET',
-        success: function(data) {
-          var rows = '';
-          data.forEach(function(crime, index) {
-            rows += `<tr>
-                       <th scope="row">${crime.UniversityName}</th>
-                       <td>${crime.crimeType}</td>
-                       <td>${crime.crimeAddress}</td>
-                       <td>${crime.occurredDate}</td>
-                       <td>${crime.occurredTime}</td>
-                       <td>${crime.reportedDate}</td>
-                       <td>${crime.reportedTime}</td>
-                       <td>${crime.city}</td>
-                       <td>${crime.state}</td>
-                     </tr>`;
-          });
-          $('#crimeBody').html(rows);
-        },
-        error: function() {
-          alert('Failed to load crime logs.');
-        }
-      });
-    }
-    function fillCrimeTypes(){
-      $.ajax({
         url: '/api/fillc',
         method: 'GET',
         success: function(data) {
           var rows = '';
           data.forEach(function(crime, index) {
-            rows += `<option> '${crime.crimeType}' </option>`;
+            rows += `<option>'${crime.crimeType}' </option>`;
           });
           $('#crimeDrop').html(rows);
         },
@@ -121,41 +111,14 @@
           $('#uniDrop').html(rows);
         },
         error: function() {
-          alert('Failed to load crime dropdown.');
+          alert('Failed to load university dropdown.');
         }
       });
     }
-    function fillAll() {
+    function fillAll(){
       fillTable();
       fillCrimeTypes();
       fillUniversities();
-    }
-    function reload() {
-      console.log("this ran");
-      $.ajax({
-        url: '/api/relLogs',
-        method: 'GET',
-        success: function(data) {
-          var rows = '';
-          data.forEach(function(crime, index) {
-            rows += `<tr>
-                       <th scope="row">${crime.UniversityName}</th>
-                       <td>${crime.crimeType}</td>
-                       <td>${crime.crimeAddress}</td>
-                       <td>${crime.occurredDate}</td>
-                       <td>${crime.occurredTime}</td>
-                       <td>${crime.reportedDate}</td>
-                       <td>${crime.reportedTime}</td>
-                       <td>${crime.city}</td>
-                       <td>${crime.state}</td>
-                     </tr>`;
-          });
-          $('#crimeBody').html(rows);
-        },
-        error: function() {
-          alert('Failed to load crime logs.');
-        }
-      });
     }
 </script>
 </html>
