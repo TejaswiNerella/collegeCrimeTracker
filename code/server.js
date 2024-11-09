@@ -27,33 +27,48 @@ app.get('/', function(req, res) {
   res.render('index', { title: 'Log In' });
 });
 
-app.get('/success', function(req, res) {
-      res.send({'message': 'Attendance marked successfully!'});
-});
 app.get('/log',function(req,res){
+  console.log('got to the logs page');
   res.render('logs', { title: 'Crime Log' });
 });
+app.get('/trends',function(req,res){
+  res.render('trends', { title: 'Trends' });
+});
 
+app.post('/getCrimeData', function(req, res) {
+  var crimetrend=req.body.crimeType;
+  var startDate=req.body.startTime;
+  var sql=`CALL getTrends('${crimetrend}','${startDate}')`;
+  console.log(sql);
+  console.log(crimetrend);
+  console.log(startDate);
+  connection.query(sql, function(err, results) {
+    if (err) {
+      console.error('Error fetching crimeTypes data:', err);
+      res.status(500).send({ message: 'Error fetching crimeTypes data', error: err });
+      return;
+    }
+    console.log(results[0]);
+    res.json(results[0]);
+  });
+});
 app.post('/relLog', function(req, res) {
-
   crimes=req.body.crimes;
   universities=req.body.universities;
-
-  console.log(req.body.universities);
+  console.log(universities);
   res.redirect('/log');
 });
+
 
 app.get('/api/logs',function(req,res){
   if(crimes){
     if(!universities){
-      alert('Universities Not selected');
       return;
     }
     var sql = `SELECT UniversityName,crimeType,crimeAddress,occurredDate,occurredTime,reportedDate,reportedTime,city,state  FROM Crime c JOIN Universities u ON u.UniversityId=c.universityId WHERE crimeType IN(${crimes}) AND UniversityName IN(${universities}) ORDER BY occurredDate DESC`;
   }
   else{
     if(universities){
-      alert('Crime Type not selected');
       return;
     }
     var sql = `SELECT UniversityName,crimeType,crimeAddress,occurredDate,occurredTime,reportedDate,reportedTime,city,state  FROM Crime c JOIN Universities u ON u.UniversityId=c.universityId ORDER BY occurredDate DESC`;
@@ -104,7 +119,7 @@ app.post('/login', function(req, res) {
   universities=null;
 
 
-console.log(sql);
+  console.log(sql);
   connection.query(sql, function(err, result) {
     if (err) {
       res.send(err)
@@ -120,6 +135,86 @@ console.log(sql);
 });
 app.get('/registration', function(req,res){
   res.render('registration',{ title: 'Register' });
+});
+app.get('/update', function(req,res){
+  res.render('update',{ title: 'Update Information' });
+});
+app.get('/delete', function(req,res){
+  res.render('delete',{ title: 'Delete Information' });
+});
+app.post('/updating', function(req, res) {
+
+  username=req.body.username;
+  password=req.body.password;
+  newPass=req.body.newPass;
+  address=req.body.address;
+  city=req.body.city;
+  state=req.body.state;
+  var sql = `SELECT password FROM User WHERE username='${username}'`;
+  console.log(sql);
+  connection.query(sql, function(err, result) {
+    if (err) {
+      console.error('Error registering user', err);
+      res.status(500).send({ message: 'Error registering user', error: err });
+      return;
+    }
+    if(result.length>0 && result[0].password==password){
+      res.redirect('/updater');
+    }
+    else{
+      res.status(500).send({message: 'The username or password is incorrect',error: 'incorrect password'});
+      return;
+    }
+  });
+});
+app.post('/deleting', function(req, res) {
+
+  username=req.body.username;
+  password=req.body.password;
+  newPass=req.body.newPass;
+  address=req.body.address;
+  city=req.body.city;
+  state=req.body.state;
+  var sql = `SELECT password FROM User WHERE username='${username}'`;
+  console.log(sql);
+  connection.query(sql, function(err, result) {
+    if (err) {
+      console.error('Error registering user', err);
+      res.status(500).send({ message: 'Error registering user', error: err });
+      return;
+    }
+    if(result.length>0 && result[0].password==password){
+      res.redirect('/deleter');
+    }
+    else{
+      res.status(500).send({message: 'The username or password is incorrect',error: 'incorrect password'});
+      return;
+    }
+  });
+});
+app.get('/updater', function(req,res){
+  var sql=`UPDATE User SET password='${newPass}', address='${address}', city='${city}',state='${state}' WHERE username='${username}'`;
+  console.log(sql);
+  connection.query(sql, function(err, results) {
+    if (err) {
+      console.error('Error updating user', err);
+      res.status(500).send({ message: 'Error registering user', error: err });
+      return;
+    }
+    res.redirect('/');
+  });
+});
+app.get('/deleter', function(req,res){
+  var sql=`DELETE FROM User WHERE username='${username}'`;
+  console.log(sql);
+  connection.query(sql, function(err, results) {
+    if (err) {
+      console.error('Error updating user', err);
+      res.status(500).send({ message: 'Error registering user', error: err });
+      return;
+    }
+    res.redirect('/');
+  });
 });
 app.post('/register', function(req, res) {
 
